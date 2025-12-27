@@ -1,93 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
-<section>
-  <h2>Dashboard</h2>
-  <div id="userInfo"></div>
-  <hr>
-  <h3>Clock In / Out</h3>
-  <form id="clockInForm">
-    <label>User ID</label>
-    <input type="number" id="clockin_user_id" required>
-    <button type="submit">Clock In</button>
-  </form>
-  <div id="clockInStatus" class="status"></div>
+<section class="dashboard">
+  <h2>Welcome, {{ name }}</h2>
+  <p class="date">Today: {{ today_date }}</p>
 
-  <form id="clockOutForm" style="margin-top: 10px;">
-    <label>User ID</label>
-    <input type="number" id="clockout_user_id" required>
-    <button type="submit">Clock Out</button>
-  </form>
-  <div id="clockOutStatus" class="status"></div>
+  <div class="status-card {{ my_today.status_class }}">
+    <h3>Status: {{ my_today.status }}</h3>
+    <p>Clock In: {{ my_today.clock_in or "—" }}</p>
+    <p>Clock Out: {{ my_today.clock_out or "—" }}</p>
+  </div>
 
-  <hr>
-  <h3>My Logs</h3>
-  <div id="myLogs"></div>
+  <div class="actions">
+    <form id="clockInForm" method="post" action="/attendance/clock-in">
+      <input type="hidden" id="latitude_in" name="latitude">
+      <input type="hidden" id="longitude_in" name="longitude">
+      <button type="submit" class="btn btn-primary">Clock In</button>
+    </form>
+
+    <form id="clockOutForm" method="post" action="/attendance/clock-out">
+      <input type="hidden" id="latitude_out" name="latitude">
+      <input type="hidden" id="longitude_out" name="longitude">
+      <button type="submit" class="btn btn-secondary">Clock Out</button>
+    </form>
+  </div>
 </section>
+
 <script>
-(async function init() {
-  const token = localStorage.getItem("token");
-  if (!token) { window.location.href = "/web/login"; return; }
-
-  const meRes = await fetch("/users/me", { headers: { "Authorization": "Bearer " + token } });
-  const me = await meRes.json();
-  if (!meRes.ok) { localStorage.removeItem("token"); window.location.href = "/web/login"; return; }
-  document.getElementById("clockin_user_id").value = me.id;
-  document.getElementById("clockout_user_id").value = me.id;
-})();
-
-async function getPosition() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) return reject(new Error("Geolocation not supported"));
-    navigator.geolocation.getCurrentPosition(
-      (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-      (err) => reject(err),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-  });
-}
-
-document.getElementById("clockInForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const token = localStorage.getItem("token");
-  try {
-    const { latitude, longitude } = await getPosition();
-    const payload = {
-      user_id: parseInt(document.getElementById("clockin_user_id").value, 10),
-      latitude, longitude
-    };
-    const res = await fetch("/attendance/clock-in", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    document.getElementById("clockInStatus").textContent =
-      res.ok ? `Clocked in: entry #${data.attendance_id}` : (data.detail || "Clock-in failed.");
-  } catch {
-    document.getElementById("clockInStatus").textContent = "Enable GPS and try again.";
-  }
-});
-
-document.getElementById("clockOutForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const token = localStorage.getItem("token");
-  try {
-    const { latitude, longitude } = await getPosition();
-    const payload = {
-      user_id: parseInt(document.getElementById("clockout_user_id").value, 10),
-      latitude, longitude
-    };
-    const res = await fetch("/attendance/clock-out", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    document.getElementById("clockOutStatus").textContent =
-      res.ok ? `Clocked out: entry #${data.attendance_id}` : (data.detail || "Clock-out failed.");
-  } catch {
-    document.getElementById("clockOutStatus").textContent = "Enable GPS and try again.";
-  }
+navigator.geolocation.getCurrentPosition(function(pos) {
+  document.getElementById("latitude_in").value = pos.coords.latitude;
+  document.getElementById("longitude_in").value = pos.coords.longitude;
+  document.getElementById("latitude_out").value = pos.coords.latitude;
+  document.getElementById("longitude_out").value = pos.coords.longitude;
 });
 </script>
 {% endblock %}

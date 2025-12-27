@@ -1,26 +1,40 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>{{ title if title else "Smart Staff Attendance" }}</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8">
+  <title>GeoClock AIT</title>
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-  <header class="header">
-    <h1>Smart Staff Attendance</h1>
-    <nav>
-      <a href="/web/login">Login</a>
-      <a href="/web/dashboard">Dashboard</a>
-      <a href="/web/admin">Admin</a>
+  <header class="site-header">
+    <div class="logo-container">
+      <img src="/static/img/logo.png" alt="Logo" class="logo">
+      <h1 class="site-title">GeoClock AIT</h1>
+    </div>
+    <nav class="site-nav">
+      <ul>
+        <li><a href="/web/dashboard">Dashboard</a></li>
+        <li><a href="/web/admin">Admin</a></li>
+        <li><a href="/db-admin">DB Admin</a></li>
+        <li><a href="/logout">Logout</a></li>
+      </ul>
     </nav>
   </header>
-  <main class="container">
+
+  <main class="site-main">
+    {% if error %}
+      <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
+    {% if success %}
+      <div class="alert alert-success">{{ success }}</div>
+    {% endif %}
     {% block content %}{% endblock %}
   </main>
-  <footer class="footer">
-    <small>&copy; {{ 2025 }} AIT Attendance</small>
+
+  <footer class="site-footer">
+    <p>&copy; {{ today_date.year if today_date else "2025" }} GeoClock AIT. All rights reserved.</p>
   </footer>
+
   <script src="/static/js/app.js"></script>
 </body>
 </html>

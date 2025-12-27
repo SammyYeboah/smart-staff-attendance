@@ -1,5 +1,8 @@
 # Smart Staff Attendance System
 
+
+Access Site using this link: https://smart-staff-attendance.onrender.com/web/login
+
 An enterprise-grade attendance tracking system built with **FastAPI**, **PostgreSQL 18**, **SQLAlchemy**, and **JWT authentication**.  
 Includes a **web frontend** (Jinja2 templates + vanilla JS) for staff and admins to interact with the system.
 
@@ -104,6 +107,8 @@ Web Login → http://127.0.0.1:8000/web/login
 Staff Dashboard → http://127.0.0.1:8000/web/dashboard
 
 Admin Dashboard → http://127.0.0.1:8000/web/admin
+
+Access Site using this link: https://smart-staff-attendance.onrender.com/web/login
 
 🧑‍💻 Usage Flow
 Register a user

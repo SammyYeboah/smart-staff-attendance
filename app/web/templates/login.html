@@ -1,68 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<section>
-  <h2>Login</h2>
-  <form id="loginForm">
-    <label>Username</label>
-    <input type="text" id="username" required>
-    <label>Password</label>
-    <input type="password" id="password" required>
-    <button type="submit">Login</button>
-  </form>
-  <div id="loginStatus" class="status"></div>
-  <hr>
-  <h3>Register</h3>
-  <form id="registerForm">
-    <label>Name</label>
-    <input type="text" id="reg_name" required>
-    <label>Username</label>
-    <input type="text" id="reg_username" required>
-    <label>Password</label>
-    <input type="password" id="reg_password" required>
-    <label>Role</label>
-    <select id="reg_role">
-      <option value="staff">Staff</option>
-      <option value="admin">Admin</option>
-    </select>
-    <button type="submit">Register</button>
-  </form>
-  <div id="registerStatus" class="status"></div>
-</section>
-<script>
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  const form = new URLSearchParams();
-  form.append("username", username);
-  form.append("password", password);
-  form.append("grant_type", "password");
-  const res = await fetch("/users/token", { method: "POST", body: form });
-  const data = await res.json();
-  if (res.ok && data.access_token) {
-    localStorage.setItem("token", data.access_token);
-    document.getElementById("loginStatus").textContent = "Login successful.";
-    window.location.href = "/web/dashboard";
-  } else {
-    document.getElementById("loginStatus").textContent = data.detail || "Login failed.";
-  }
-});
-
-document.getElementById("registerForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const payload = {
-    name: document.getElementById("reg_name").value,
-    username: document.getElementById("reg_username").value,
-    password: document.getElementById("reg_password").value,
-    role: document.getElementById("reg_role").value
-  };
-  const res = await fetch("/users/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  const data = await res.json();
-  document.getElementById("registerStatus").textContent = res.ok ? "User created." : (data.detail || "Registration failed.");
-});
-</script>
+<h2>Login</h2>
+<form method="post" action="/login">
+  <label>Username</label>
+  <input type="text" name="username" required>
+  <label>Password</label>
+  <input type="password" name="password" required>
+  <button type="submit">Login</button>
+</form>
 {% endblock %}

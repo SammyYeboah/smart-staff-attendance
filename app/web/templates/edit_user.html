@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit User</h2>
+
+<form method="post" action="/db-admin/users/{{ user.id }}/update">
+  <label>Name</label>
+  <input type="text" name="name" value="{{ user.name }}" required>
+
+  <label>Username</label>
+  <input type="text" name="username" value="{{ user.username }}" required>
+
+  <label>Role</label>
+  <select name="role" required>
+    <option value="staff" {% if user.role == "staff" %}selected{% endif %}>Staff</option>
+    <option value="admin" {% if user.role == "admin" %}selected{% endif %}>Admin</option>
+    <option value="db_admin" {% if user.role == "db_admin" %}selected{% endif %}>DB Admin</option>
+  </select>
+
+  <label>New password (leave blank to keep current)</label>
+  <input type="password" name="password">
+
+  <button type="submit">Update</button>
+</form>
+{% endblock %}

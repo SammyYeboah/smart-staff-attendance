@@ -10,7 +10,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     username: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
-    role: Mapped[str] = mapped_column(String, nullable=False)  # "admin" or "staff"
+    role: Mapped[str] = mapped_column(String, nullable=False)  # "admin", "staff", "db_admin"
 
     attendances: Mapped[list["AttendanceLog"]] = relationship(
         "AttendanceLog", back_populates="user", cascade="all, delete-orphan"
@@ -25,7 +25,6 @@ class AttendanceLog(Base):
     clock_in: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     clock_out: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, index=True)
 
-    # GPS fields for in/out
     latitude_in: Mapped[float | None] = mapped_column(Float, nullable=True)
     longitude_in: Mapped[float | None] = mapped_column(Float, nullable=True)
     latitude_out: Mapped[float | None] = mapped_column(Float, nullable=True)

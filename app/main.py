@@ -1,25 +1,20 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from .database import engine
-from .models import Base
-from .routes import auth, users, attendance, reports, web
+from starlette.middleware.sessions import SessionMiddleware
+from .views import router
+from .database import Base, engine
+from .config import settings
 
+# Create tables if they don't exist
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(
-    title="Smart Staff Attendance API",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url=None,
-    openapi_url="/openapi.json",
-)
+app = FastAPI()
 
-# API routers
-app.include_router(auth.router, prefix="/users", tags=["Auth & Users"])
-app.include_router(users.router, prefix="/users", tags=["Auth & Users"])
-app.include_router(attendance.router, prefix="/attendance", tags=["Attendance"])
-app.include_router(reports.router, prefix="/reports", tags=["Reports"])
+# Enable sessions
+app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 
-# Web routes and static files
-app.include_router(web.router, prefix="/web", tags=["Web"])
+# Include routes
+app.include_router(router)
+
+# Serve static files (CSS, JS, images)
 app.mount("/static", StaticFiles(directory="app/web/static"), name="static")
