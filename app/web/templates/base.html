@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title if title else "Smart Staff Attendance" }}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <h1>Smart Staff Attendance</h1>
+    <nav>
+      <a href="/web/login">Login</a>
+      <a href="/web/dashboard">Dashboard</a>
+      <a href="/web/admin">Admin</a>
+    </nav>
+  </header>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer">
+    <small>&copy; {{ 2025 }} AIT Attendance</small>
+  </footer>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

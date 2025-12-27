@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h2>Admin</h2>
+  <div id="adminInfo"></div>
+  <hr>
+  <h3>All Users</h3>
+  <div id="usersList"></div>
+  <hr>
+  <h3>All Attendance Logs (Today)</h3>
+  <form id="dailyForm">
+    <label>Date (YYYY-MM-DD)</label>
+    <input type="text" id="daily_date" value="">
+    <button type="submit">Load Daily Summary</button>
+  </form>
+  <div id="dailyLogs"></div>
+  <button id="exportCsvBtn" style="margin-top:10px;">Export CSV</button>
+</section>
+<script>
+(async function initAdmin() {
+  const token = localStorage.getItem("token");
+  if (!token) { window.location.href = "/web/login"; return; }
+
+  const meRes = await fetch("/users/me", { headers: { "Authorization": "Bearer " + token } });
+  const me = await meRes.json();
+  if (!meRes.ok || me.role !== "admin") { window.location.href = "/web/dashboard"; return; }
+  document.getElementById("adminInfo").textContent = `Admin: ${me.name} (${me.username})`;
+
+  const usersRes = await fetch("/users/list", { headers: { "Authorization": "Bearer " + token } });
+  const usersData = await usersRes.json();
+  if (usersRes.ok && usersData.items) {
+    document.getElementById("usersList").innerHTML = usersData.items.map(u =>
+      `<div>#${u.id} — ${u.name} (${u.username}) [${u.role}]</div>`
+    ).join("");
+  } else {
+    document.getElementById("usersList").textContent = usersData.detail || "Failed to load users.";
+  }
+
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById("daily_date").value = today;
+  await loadDaily(today);
+
+  document.getElementById("dailyForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const date = document.getElementById("daily_date").value;
+    await loadDaily(date);
+  });
+
+  document.getElementById("exportCsvBtn").addEventListener("click", async () => {
+    const token = localStorage.getItem("token");
+    const date = document.getElementById("daily_date").value;
+    const res = await fetch("/reports/export-csv", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify({ date })
+    });
+    const csv = await res.text();
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `attendance_${date}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  async function loadDaily(date) {
+    const token = localStorage.getItem("token");
+    const res = await fetch("/reports/daily-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify({ date })
+    });
+    const data = await res.json();
+    if (res.ok && data.items) {
+      document.getElementById("dailyLogs").innerHTML = data.items.map(item =>
+        `<div>Entry #${item.attendance_id}: User ${item.user_id} | In ${new Date(item.clock_in).toLocaleString()} | Out ${item.clock_out ? new Date(item.clock_out).toLocaleString() : "-"}</div>`
+      ).join("");
+    } else {
+      document.getElementById("dailyLogs").textContent = data.detail || "No data.";
+    }
+  }
+})();
+</script>
+{% endblock %}

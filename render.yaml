@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: smart-staff-attendance
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://postgres:guggisburg@localhost:5432/smart_staff_attendance_db
+      - key: SECRET_KEY
+        value: replace_with_a_long_random_secret_key
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "120"
+      - key: INSTITUTION_LAT
+        value: "5.669533"
+      - key: INSTITUTION_LON
+        value: "-0196003"
+      - key: MAX_RADIUS_METERS
+        value: "50"
